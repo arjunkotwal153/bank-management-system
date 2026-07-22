@@ -34,7 +34,7 @@ The core database structure anchoring the double-entry accounting system.
 ![Sequence Diagram](./assets/sd.png)
 
 ### 4. Use Case Diagram (UCD)
-![Use Case Diagram](./assets/uc.png)
+![Use Case Diagram](./assets/ucd.png)
 
 ## 🛠️ Tech Stack
 Frontend: React 18, Vite, TypeScript, React Query (TanStack).
