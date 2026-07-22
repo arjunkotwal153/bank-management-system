@@ -27,7 +27,12 @@ export default function Login() {
       : await supabase.auth.signUp({ email, password });
       
     if (error) {
-      setError(error.message);
+      // Supabase Auth returns "{}" for fatal Postgres trigger crashes
+      if (error.message === '{}') {
+        setError('Internal Database Error: The signup trigger crashed. Check Postgres logs.');
+      } else {
+        setError(error.message);
+      }
     } else if (type === 'login') {
       // If login is successful, our AuthContext will detect the session 
       // and we can navigate to the protected dashboard

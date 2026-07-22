@@ -95,6 +95,25 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
       return;
     }
 
+    let finalReceiverId = receiverId.trim();
+
+    // Basic UUID validation
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(finalReceiverId);
+    
+    if (!isUuid) {
+      const { data: resolvedId, error: resolveError } = await supabase.rpc('resolve_account_id', {
+        identifier: finalReceiverId
+      });
+      
+      if (resolveError || !resolvedId) {
+        setError('Recipient not found. Please check the email or account number.');
+        setLoading(false);
+        return;
+      }
+      
+      finalReceiverId = resolvedId;
+    }
+
     if (isScheduled) {
       if (!nextRunAt) {
         setError('Please select a start date for the scheduled transfer.');
@@ -106,7 +125,7 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
         .from('scheduled_transfers')
         .insert({
           sender_account_id: senderAccountId,
-          receiver_account_id: receiverId,
+          receiver_account_id: finalReceiverId,
           amount: transferAmount,
           description: description || 'Scheduled Transfer',
           category: category,
@@ -125,7 +144,7 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
   
       const { error: rpcError } = await supabase.rpc('transfer_funds', {
         p_sender_account_id: senderAccountId,
-        p_receiver_account_id: receiverId,
+        p_receiver_account_id: finalReceiverId,
         p_amount: transferAmount,
         p_idempotency_key: idempotencyKey,
         p_description: description || 'Standard Transfer',
@@ -145,7 +164,7 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
         .from('beneficiaries')
         .insert({
           profile_id: user.id,
-          account_id: receiverId,
+          account_id: finalReceiverId,
           nickname: nickname
         });
       
@@ -196,7 +215,7 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
               onClick={() => { setUseManualEntry(true); setReceiverId(''); }}
               className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-md transition-all ${useManualEntry ? 'bg-slate-800 text-white shadow border border-slate-700' : 'text-slate-400 hover:text-slate-200'}`}
             >
-              <Hash className="w-4 h-4 mr-2" /> Manual UUID
+              <Hash className="w-4 h-4 mr-2" /> Email / Account ID
             </button>
           </div>
 
@@ -204,14 +223,14 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
           {useManualEntry ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Receiver Account ID (UUID)</label>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Email, Account Number, or UUID</label>
                 <input
                   type="text"
                   required
                   value={receiverId}
                   onChange={(e) => setReceiverId(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-mono text-sm placeholder:text-slate-600"
-                  placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+                  placeholder="e.g. user@example.com, ACCT-123..., or UUID"
                 />
               </div>
               
