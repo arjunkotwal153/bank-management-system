@@ -15,6 +15,12 @@ export default function Login() {
     setLoading(true);
     setError(null);
     
+    if (!email || !password) {
+      setError('Email and password are required.');
+      setLoading(false);
+      return;
+    }
+    
     // Call Supabase Auth functions
     const { error } = type === 'login' 
       ? await supabase.auth.signInWithPassword({ email, password })
