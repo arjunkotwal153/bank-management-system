@@ -72,7 +72,7 @@ export default function BudgetChart({ data }: BudgetChartProps) {
             dataKey="value"
             stroke="none"
           >
-            {chartData.map((entry, index) => (
+            {chartData.map((_entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -81,7 +81,7 @@ export default function BudgetChart({ data }: BudgetChartProps) {
             verticalAlign="bottom" 
             height={36} 
             iconType="circle"
-            formatter={(value, entry, index) => (
+            formatter={(value, _entry, _index) => (
               <span className="text-slate-300 text-sm ml-1">{value}</span>
             )}
           />

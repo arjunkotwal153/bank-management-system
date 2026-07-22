@@ -260,7 +260,7 @@ export default function Dashboard() {
                 status={account.account_status || 'active'}
               />
               <PaymentRequestsWidget accountId={account.id} />
-              <SavingsVaultsWidget profileId={user.id} />
+              <SavingsVaultsWidget profileId={user?.id || ''} />
               <ScheduledTransfersWidget accountId={account.id} />
               <ExternalFundingWidget accountId={account.id} />
 

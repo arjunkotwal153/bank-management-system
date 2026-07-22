@@ -9,7 +9,7 @@ interface SecurityWidgetProps {
 }
 
 export default function SecurityWidget({ accountId, dailyLimit, status }: SecurityWidgetProps) {
-  const { data: dailySpent, isLoading } = useQuery({
+  const { data: dailySpent } = useQuery({
     queryKey: ['daily_spent', accountId],
     enabled: !!accountId,
     queryFn: async () => {

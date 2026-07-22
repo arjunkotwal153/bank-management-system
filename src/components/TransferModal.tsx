@@ -44,7 +44,7 @@ export default function TransferModal({ isOpen, onClose, senderAccountId }: Tran
     }
   });
 
-  const { data: vaults, isLoading: loadingVaults } = useQuery({
+  const { data: vaults } = useQuery({
     queryKey: ['vaults_dropdown', user?.id],
     enabled: !!user?.id && isOpen,
     queryFn: async () => {
