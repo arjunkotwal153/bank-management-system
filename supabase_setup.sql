@@ -44,6 +44,7 @@ CREATE TABLE public.accounts (
   currency text DEFAULT 'USD',
   account_status text DEFAULT 'active',
   daily_transfer_limit numeric DEFAULT 5000,
+  target_amount numeric DEFAULT 0,
   created_at timestamptz DEFAULT now()
 );
 
@@ -87,6 +88,7 @@ CREATE TABLE public.virtual_cards (
   expiry text NOT NULL,
   cvv text NOT NULL,
   status text DEFAULT 'active',
+  is_frozen boolean DEFAULT false,
   spending_limit numeric DEFAULT 1000,
   created_at timestamptz DEFAULT now()
 );
@@ -258,7 +260,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.create_vault(p_user_id uuid, p_vault_name text)
+CREATE OR REPLACE FUNCTION public.create_vault(p_currency text, p_target_amount numeric, p_vault_name text)
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -266,15 +268,16 @@ AS $$
 DECLARE
   v_account_id uuid;
 BEGIN
-  INSERT INTO public.accounts (profile_id, account_number, account_type, vault_name, balance, currency, account_status)
+  INSERT INTO public.accounts (profile_id, account_number, account_type, vault_name, balance, currency, account_status, target_amount)
   VALUES (
-    p_user_id,
+    auth.uid(),
     'VAULT-' || upper(substring(md5(random()::text) from 1 for 8)),
     'vault',
     p_vault_name,
     0,
-    'USD',
-    'active'
+    p_currency,
+    'active',
+    p_target_amount
   ) RETURNING id INTO v_account_id;
   
   RETURN v_account_id;

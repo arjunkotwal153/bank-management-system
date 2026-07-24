@@ -62,13 +62,13 @@ export default function Dashboard() {
 
       let query = supabase
         .from('ledger_entries')
-        .select(`id, amount, created_at, transactions!inner(description, category)`)
+        .select(`id, amount, created_at, description, category`)
         .eq('account_id', account?.id)
         .order('created_at', { ascending: false })
         .range(from, to);
 
       if (searchTerm) {
-        query = query.ilike('transactions.description', `%${searchTerm}%`);
+        query = query.ilike('description', `%${searchTerm}%`);
       }
 
       const { data, error } = await query;
@@ -120,12 +120,12 @@ export default function Dashboard() {
     // 2. Map data rows
     const rows = history.map((entry: any) => {
       const date = new Date(entry.created_at).toLocaleString('en-US');
-      const description = `"${(entry.transactions?.description || 'System Transfer').replace(/"/g, '""')}"`;
-      const category = `"${entry.transactions?.category || 'General'}"`;
+      const description = `"${(entry.description || 'System Transfer').replace(/"/g, '""')}"`;
+      const category = `"${entry.category || 'General'}"`;
       const isCredit = Number(entry.amount) > 0;
       const type = isCredit ? 'Credit' : 'Debit';
       const amount = Math.abs(Number(entry.amount)).toFixed(2);
-      const currency = entry.transactions?.original_currency || account?.currency || 'USD';
+      const currency = entry.original_currency || account?.currency || 'USD';
 
       return `${date},${description},${category},${type},${amount},${currency}`;
     });
@@ -150,8 +150,7 @@ export default function Dashboard() {
     if (!account) return;
     const { error } = await supabase.rpc('deposit_funds', {
       p_account_id: account.id,
-      p_amount: 1500.00,
-      p_description: 'Direct Deposit - Payroll'
+      p_amount: 1500.00
     });
     if (error) alert("Database Error: " + error.message);
   };
@@ -310,11 +309,11 @@ export default function Dashboard() {
                                 {isCredit ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                               </div>
                               <div>
-                                <p className="font-medium text-slate-900 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white transition-colors">{entry.transactions?.description || 'System Transfer'}</p>
+                                <p className="font-medium text-slate-900 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white transition-colors">{entry.description || 'System Transfer'}</p>
                                 <p className="text-xs text-slate-500">
                                   {new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                   <span className="mx-2">•</span>
-                                  <span className="text-indigo-600 dark:text-indigo-400">{entry.transactions?.category || 'General'}</span>
+                                  <span className="text-indigo-600 dark:text-indigo-400">{entry.category || 'General'}</span>
                                 </p>
                               </div>
                             </div>

@@ -13,7 +13,7 @@ export default function BudgetChart({ data }: BudgetChartProps) {
   
   outgoing.forEach((entry) => {
     // Determine category or fallback to 'General'
-    const category = entry.transactions?.category || 'General';
+    const category = entry.category || 'General';
     const amount = Math.abs(Number(entry.amount));
     
     if (categoryTotals[category]) {
