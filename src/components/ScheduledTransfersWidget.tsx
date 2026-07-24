@@ -45,7 +45,7 @@ export default function ScheduledTransfersWidget({ accountId }: { accountId: str
   return (
     <div className="p-8 rounded-3xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-xl mb-8">
       <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <Calendar className="w-5 h-5 text-emerald-400" /> 
+        <Calendar className="w-5 h-5 text-emerald-400" />
         Active Scheduled Transfers
       </h3>
       <div className="space-y-3">
